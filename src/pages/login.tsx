@@ -1,14 +1,19 @@
 import { gql, useMutation } from "@apollo/client";
-import { Helmet } from "react-helmet";
+import { Helmet } from "react-helmet-async";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
+import { authTokenVar, isLoggedInVar } from "../apollo";
 import { Button } from "../components/button";
 import { FormError } from "../components/form-error";
+import { LOCALSTORAGE_TOKEN } from "../constants";
 import nuberLogo from "../images/logo.svg";
 import {
   loginMutation,
   loginMutationVariables,
 } from "../__generated__/loginMutation";
+
+// 로그인 전에 remember me라는 체크리스트를 통해 체크 시 로그인을 유지시키고,
+// 체크하지 않을 시 브라우저 종료시 로그인을 유지시키지 않는 기능도 고려해보기
 
 const LOGIN_MUTATION = gql`
   mutation loginMutation($loginInput: LoginInput!) {
@@ -39,8 +44,10 @@ export const Login = () => {
     const {
       login: { error, ok, token },
     } = data;
-    if (ok) {
-      console.log(token);
+    if (ok && token) {
+      localStorage.setItem(LOCALSTORAGE_TOKEN, token);
+      authTokenVar(token);
+      isLoggedInVar(true);
     }
   };
   const [loginMutation, { data: loginMutationResult, loading }] = useMutation<
@@ -77,7 +84,11 @@ export const Login = () => {
           className="grid gap-3 mt-5 w-full mb-5"
         >
           <input
-            {...register("email", { required: "Email is required" })}
+            {...register("email", {
+              required: "Email is required",
+              pattern:
+                /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+            })}
             name="email"
             required
             type="email"
@@ -87,7 +98,9 @@ export const Login = () => {
           {errors.email?.message && (
             <FormError errorMessage={errors.email?.message} />
           )}
-
+          {errors.email?.type === "pattern" && (
+            <FormError errorMessage={"Please enter a valid email"} />
+          )}
           <input
             {...register("password", {
               required: "Password is required",
