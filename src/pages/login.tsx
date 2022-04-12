@@ -12,9 +12,6 @@ import {
   loginMutationVariables,
 } from "../__generated__/loginMutation";
 
-// 로그인 전에 remember me라는 체크리스트를 통해 체크 시 로그인을 유지시키고,
-// 체크하지 않을 시 브라우저 종료시 로그인을 유지시키지 않는 기능도 고려해보기
-
 const LOGIN_MUTATION = gql`
   mutation loginMutation($loginInput: LoginInput!) {
     login(input: $loginInput) {
