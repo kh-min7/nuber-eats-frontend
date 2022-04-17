@@ -5,6 +5,7 @@ interface IRestaurantProps {
   coverImg: string;
   name: string;
   categoryName?: string;
+  address: string;
 }
 
 export const Restaurant: React.FC<IRestaurantProps> = ({

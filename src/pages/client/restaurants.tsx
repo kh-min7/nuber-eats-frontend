@@ -106,6 +106,7 @@ export const Restaurants = () => {
                 coverImg={restaurant.coverImg}
                 name={restaurant.name}
                 categoryName={restaurant.category?.name}
+                address={restaurant.address}
               />
             ))}
           </div>
