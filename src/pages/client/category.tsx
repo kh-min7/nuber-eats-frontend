@@ -1,5 +1,6 @@
 import { gql, useQuery } from "@apollo/client";
 import React from "react";
+import { Helmet } from "react-helmet";
 import { useParams } from "react-router-dom";
 import { Restaurant } from "../../components/restaurant";
 import { CATEGORY_FRAGMENT, RESTAURANT_FRAGMENT } from "../../fragments";
@@ -40,6 +41,9 @@ export const Category = () => {
   console.log(data);
   return (
     <div className="max-w-screen-2xl pb-20 mx-auto mt-8">
+      <Helmet>
+        <title>Category | Nuber Eats</title>
+      </Helmet>
       {loading ? (
         loading
       ) : (
@@ -59,4 +63,4 @@ export const Category = () => {
   );
 };
 
-// 새로고침 시 데이터들 다 없어지는거 해결하기
+// 새로고침 시 아메리칸, 차이니즈 사라짐
