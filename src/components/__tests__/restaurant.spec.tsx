@@ -10,6 +10,7 @@ describe("<Restaurant />", () => {
       name: "name",
       categoryName: "categoryName",
       coverImg: "lala",
+      address: "123",
     };
     const { getByText, container } = render(
       <Router>
