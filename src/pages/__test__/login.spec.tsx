@@ -1,6 +1,6 @@
 import { ApolloProvider } from "@apollo/client";
 import { createMockClient, MockApolloClient } from "mock-apollo-client";
-import { render, RenderResult, waitFor } from "@testing-library/react";
+import { render, RenderResult, waitFor } from "../../test-utils";
 import React from "react";
 import { Login, LOGIN_MUTATION } from "../login";
 import { HelmetProvider } from "react-helmet-async";
@@ -14,13 +14,9 @@ describe("<Login />", () => {
     await waitFor(async () => {
       mockedClient = createMockClient();
       renderResult = render(
-        <HelmetProvider>
-          <Router>
-            <ApolloProvider client={mockedClient}>
-              <Login />
-            </ApolloProvider>
-          </Router>
-        </HelmetProvider>
+        <ApolloProvider client={mockedClient}>
+          <Login />
+        </ApolloProvider>
       );
     });
   });
