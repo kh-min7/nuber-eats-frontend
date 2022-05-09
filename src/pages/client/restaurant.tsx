@@ -1,14 +1,14 @@
 import { gql, useQuery } from "@apollo/client";
 import React, { useState } from "react";
-import { Helmet } from "react-helmet";
+import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router-dom";
 import { Dish } from "../../components/dish";
 import { DISH_FRAGMENT, RESTAURANT_FRAGMENT } from "../../fragments";
+import { CreateOrderItemInput } from "../../__generated__/globalTypes";
 import {
   restaurant,
   restaurantVariables,
 } from "../../__generated__/restaurant";
-import { CreateOrderItemInput } from "../../__generated__/globalTypes";
 
 const RESTAURANT_QUERY = gql`
   query restaurant($input: RestaurantInput!) {
@@ -41,13 +41,13 @@ interface IRestaurantParams {
 }
 
 export const Restaurant = () => {
-  const { id } = useParams() as IRestaurantParams;
+  const params = useParams();
   const { loading, data } = useQuery<restaurant, restaurantVariables>(
     RESTAURANT_QUERY,
     {
       variables: {
         input: {
-          restaurantId: +id,
+          restaurantId: +params.id,
         },
       },
     }
@@ -58,22 +58,43 @@ export const Restaurant = () => {
   const triggerStartOrder = () => {
     setOrderStarted(true);
   };
-  const isSelected = (dishId: number) => {
-    return Boolean(orderItems.find((order) => order.dishId === dishId));
+
+  const getItem = (dishId: number) => {
+    return orderItems.find((order) => order.dishId === dishId);
   };
+
+  const isSelected = (dishId: number) => {
+    return Boolean(getItem(dishId));
+  };
+
   const addItemToOrder = (dishId: number) => {
     if (isSelected(dishId)) {
       return;
     }
-    setOrderItems((current) => [{ dishId }, ...current]);
+    setOrderItems((current) => [{ dishId, options: [] }, ...current]);
   };
+
   const removeFromOrder = (dishId: number) => {
     setOrderItems((current) =>
       current.filter((dish) => dish.dishId !== dishId)
     );
   };
-  console.log(orderItems);
 
+  const addOptionToItem = (dishId: number, option: any) => {
+    if (!isSelected(dishId)) {
+      return;
+    }
+    const oldItem = getItem(dishId);
+    if (oldItem) {
+      removeFromOrder(dishId);
+      setOrderItems((current) => [
+        { dishId, options: [option, ...oldItem.options!] },
+        ...current,
+      ]);
+    }
+  };
+
+  console.log(orderItems);
   return (
     <div>
       <Helmet>
@@ -102,6 +123,7 @@ export const Restaurant = () => {
         <div className="w-full grid mt-16 md:grid-cols-3 gap-x-5 gap-y-10">
           {data?.restaurant.restaurant?.menu.map((dish, index) => (
             <Dish
+              isSelected={isSelected(dish.id)}
               id={dish.id}
               orderStarted={orderStarted}
               key={index}
@@ -111,13 +133,12 @@ export const Restaurant = () => {
               isCustomer={true}
               options={dish.options}
               addItemToOrder={addItemToOrder}
-              isSelected={isSelected(dish.id)}
               removeFromOrder={removeFromOrder}
+              addOptionToItem={addOptionToItem}
             />
           ))}
         </div>
       </div>
     </div>
-    // 카테고리들 링크 달기(코드챌린지)
   );
 };
